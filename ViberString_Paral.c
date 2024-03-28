@@ -47,6 +47,7 @@ void ForwardDifference(float *Phi_current,float *dPhi)
 {
   int i;
   float c,l,r;
+  #pragma omp parallel for private(c, l, r)
   for (i = 0 ; i < m ; i++){
     c = *(Phi_current+i);
     l = (i==0)    ? - *(Phi_current+i+1) : *(Phi_current+i-1);
@@ -76,8 +77,11 @@ int main()
   while (t<=T)
   {
     ForwardDifference(Phi_current, dPhi);
+    #pragma omp parallel for
     for (i = 0 ; i < m ; i++)
       *(Phi_new+i) = 2*(*(Phi_current+i)) - *(Phi_old+i) + tau*tau*(*(dPhi+i));
+    
+    #pragma omp parallel for
     for (i = 0 ; i < m ; i++){
       *(Phi_old+i)      = *(Phi_current+i);
       *(Phi_current+i)  = *(Phi_new+i);
